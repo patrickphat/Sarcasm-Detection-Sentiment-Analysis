@@ -1,4 +1,3 @@
-from scipy.sparse import csr_matrix
 from MyNLPToolBox import TextPreprocessor as TP
 from scipy.sparse import csr_matrix, csc_matrix
 import numpy as np
