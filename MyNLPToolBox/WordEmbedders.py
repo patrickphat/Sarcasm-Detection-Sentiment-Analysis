@@ -11,18 +11,23 @@ class TFIDFVectorizer:
         self.tf_mat = None # Store the tf mat for later use to calculate idf
         self.mode = mode
         
-        
+    def change_mode(self,mode):
+	"""
+	Change to different modes of calculate tfidf:
+	'natural'
+	'log'
+	'boolean'
+	'augmented'
+	"""
+        self.mode = mode
+        return self
+
     def fit(self,corpus):
         for words in corpus:
             self.dict += words.split()
         self.dict_uniq = list(np.unique(self.dict))
         return self
-    
-    
-    def change_mode(self,mode):
-        self.mode = mode
-        return self
-        
+
         
     def transform(self,corpus):
         
@@ -118,8 +123,8 @@ class TFIDFVectorizer:
         print('Performing BooleanTf..',end='')
         
         # Perform boolean-tf
-        boolean_matrix.data[boolean_matrix.data > 1] = 1
-        boolean_matrix.data[boolean_matrix.data <= 1] = 0
+        boolean_matrix.data[boolean_matrix.data > 0] = 1
+        boolean_matrix.data[boolean_matrix.data = 0] = 0
         
         print(' Done!')
         
