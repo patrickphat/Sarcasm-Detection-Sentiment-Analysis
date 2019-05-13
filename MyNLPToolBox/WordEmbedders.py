@@ -1,4 +1,4 @@
-from MyNLPToolBox import TextPreprocessor as TP
+from scipy.sparse import csr_matrix
 from scipy.sparse import csr_matrix, csc_matrix
 import numpy as np
 import sys
@@ -10,23 +10,19 @@ class TFIDFVectorizer:
         self.tf_mat = None # Store the tf mat for later use to calculate idf
         self.mode = mode
         
-    def change_mode(self,mode):
-	"""
-	Change to different modes of calculate tfidf:
-	'natural'
-	'log'
-	'boolean'
-	'augmented'
-	"""
-        self.mode = mode
-        return self
-
+    def fit_transform(self,corpus):
+        self.fit(corpus)
+        return self.transform(self)
+    
     def fit(self,corpus):
         for words in corpus:
             self.dict += words.split()
         self.dict_uniq = list(np.unique(self.dict))
         return self
-
+    
+    def change_mode(self,mode):
+        self.mode = mode
+        return self
         
     def transform(self,corpus):
         
@@ -57,8 +53,6 @@ class TFIDFVectorizer:
         
         return tfidf
         
-    
-
     def tf(self,corpus): 
         
         # (Natural) tf is define number of occurence of a word in a doc 
@@ -93,7 +87,6 @@ class TFIDFVectorizer:
         self.tf_mat = tf_mat
        
         return tf_mat
-   
 
     def logtf(self,corpus):
         # Logarithmic tf is defined as 1 + log2(tf)
@@ -110,8 +103,7 @@ class TFIDFVectorizer:
         print(' Done!')
         
         return log_matrix
-    
-    
+        
     def booleantf(self,corpus):
         # Boolean tf is defined as 1 when tf>1 and 0 otherwise
         
@@ -122,8 +114,7 @@ class TFIDFVectorizer:
         print('Performing BooleanTf..',end='')
         
         # Perform boolean-tf
-        boolean_matrix.data[boolean_matrix.data > 0] = 1
-        boolean_matrix.data[boolean_matrix.data = 0] = 0
+        boolean_matrix.data[boolean_matrix.data > 1] = 1
         
         print(' Done!')
         
@@ -142,6 +133,9 @@ class TFIDFVectorizer:
             # Retrieve i-th row of matrix
             row = aug_matrix.data[aug_matrix.indptr[i]:aug_matrix.indptr[i+1]]
             
+            # If there's nothing in that row then skip
+            if (not len(row)): continue
+                
             # Get the max value of that row
             maxtf = row.max()
             
@@ -157,6 +151,7 @@ class TFIDFVectorizer:
         
     def idf(self,corpus):
         # (Logarithmic) tf is defined as log2(num_docs/num_docs_have_word)
+        
         # Loading bar
         print('Performing Idf..',end='')
         
@@ -185,7 +180,7 @@ class TFIDFVectorizer:
             
         print(' Done!')
         
-        # Switch back to csc mat
+        # Switch back to csr mat
         idfmat.tocsr()
         
         return idfmat
